@@ -1,0 +1,771 @@
+{
+  "completedAt": "2026-07-15T16:59:25.436Z",
+  "counts": {
+    "filled": 29,
+    "not_found": 20,
+    "option_not_found": 13,
+    "skipped_blank": 27,
+    "verification_failed": 5
+  },
+  "currentSection": "New Application",
+  "form": "ETA-9035/9035E",
+  "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+  "portalErrors": [],
+  "results": [
+    {
+      "answer": "H-1B",
+      "canonicalKey": "A.1",
+      "key": "A.1",
+      "message": "Radio option selected and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "Software Engineer",
+      "canonicalKey": "B.1",
+      "key": "B.1",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "15-1252.00",
+      "canonicalKey": "B.2",
+      "key": "B.2",
+      "message": "No exact searchable dropdown option matched.",
+      "section": "New Application",
+      "status": "option_not_found"
+    },
+    {
+      "answer": "Software Developers",
+      "canonicalKey": "B.3",
+      "key": "B.3",
+      "message": "No exact searchable dropdown option matched.",
+      "section": "New Application",
+      "status": "option_not_found"
+    },
+    {
+      "answer": "Yes",
+      "canonicalKey": "B.4",
+      "key": "B.4",
+      "message": "Radio option selected and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "10/01/2026",
+      "canonicalKey": "B.5",
+      "key": "B.5",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "09/30/2029",
+      "canonicalKey": "B.6",
+      "key": "B.6",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "1",
+      "canonicalKey": "B.7",
+      "key": "B.7",
+      "message": "Expected one editable control for this question.",
+      "section": "New Application",
+      "status": "verification_failed"
+    },
+    {
+      "answer": "1",
+      "canonicalKey": "B.7A",
+      "key": "B.7a",
+      "message": "Expected one editable control for this question.",
+      "section": "New Application",
+      "status": "verification_failed"
+    },
+    {
+      "answer": "0",
+      "canonicalKey": "B.7B",
+      "key": "B.7b",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "0",
+      "canonicalKey": "B.7C",
+      "key": "B.7c",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "0",
+      "canonicalKey": "B.7D",
+      "key": "B.7d",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "0",
+      "canonicalKey": "B.7E",
+      "key": "B.7e",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "0",
+      "canonicalKey": "B.7F",
+      "key": "B.7f",
+      "message": "Expected one editable control for this question.",
+      "section": "New Application",
+      "status": "verification_failed"
+    },
+    {
+      "answer": "Test Corporation LLC",
+      "canonicalKey": "C.1",
+      "key": "C.1",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "5551234567",
+      "canonicalKey": "C.10",
+      "key": "C.10",
+      "message": "No exact dropdown option matched.",
+      "section": "New Application",
+      "status": "option_not_found"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "C.11",
+      "key": "C.11",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "12-3456789",
+      "canonicalKey": "C.12",
+      "key": "C.12",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "541511",
+      "canonicalKey": "C.13",
+      "key": "C.13",
+      "message": "No exact searchable dropdown option matched.",
+      "section": "New Application",
+      "status": "option_not_found"
+    },
+    {
+      "answer": "TestCorp",
+      "canonicalKey": "C.2",
+      "key": "C.2",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "123 Main St",
+      "canonicalKey": "C.3",
+      "key": "C.3",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "C.4",
+      "key": "C.4",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "New York",
+      "canonicalKey": "C.5",
+      "key": "C.5",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "New York",
+      "canonicalKey": "C.6",
+      "key": "C.6",
+      "message": "Native dropdown option selected and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "10001",
+      "canonicalKey": "C.7",
+      "key": "C.7",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "United States Of America",
+      "canonicalKey": "C.8",
+      "key": "C.8",
+      "message": "Native dropdown option selected and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "C.9",
+      "key": "C.9",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "D.1",
+      "key": "D.1",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "United States Of America",
+      "canonicalKey": "D.10",
+      "key": "D.10",
+      "message": "Native dropdown option selected and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "D.11",
+      "key": "D.11",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "5551234567",
+      "canonicalKey": "D.12",
+      "key": "D.12",
+      "message": "No exact dropdown option matched.",
+      "section": "New Application",
+      "status": "option_not_found"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "D.13",
+      "key": "D.13",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "hr@testcorp.com",
+      "canonicalKey": "D.14",
+      "key": "D.14",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "D.2",
+      "key": "D.2",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "D.3",
+      "key": "D.3",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "D.4",
+      "key": "D.4",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "123 Main St",
+      "canonicalKey": "D.5",
+      "key": "D.5",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "D.6",
+      "key": "D.6",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "New York",
+      "canonicalKey": "D.7",
+      "key": "D.7",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "New York",
+      "canonicalKey": "D.8",
+      "key": "D.8",
+      "message": "Native dropdown option selected and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "10001",
+      "canonicalKey": "D.9",
+      "key": "D.9",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "Yes",
+      "canonicalKey": "E.1",
+      "key": "E.1",
+      "message": "No exact radio option matched.",
+      "section": "New Application",
+      "status": "option_not_found"
+    },
+    {
+      "answer": "United States Of America",
+      "canonicalKey": "E.10",
+      "key": "E.10",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "E.11",
+      "key": "E.11",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "+1 (847) 220-1560",
+      "canonicalKey": "E.12",
+      "key": "E.12",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "E.13",
+      "key": "E.13",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "legal@mkimmigrationlaw.com",
+      "canonicalKey": "E.14",
+      "key": "E.14",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "Law Offices of Mary Kennedy, LLC",
+      "canonicalKey": "E.15",
+      "key": "E.15",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "82-3789282",
+      "canonicalKey": "E.16",
+      "key": "E.16",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "173876",
+      "canonicalKey": "E.17",
+      "key": "E.17",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "Oregon",
+      "canonicalKey": "E.18",
+      "key": "E.18",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "Oregon Supreme Court",
+      "canonicalKey": "E.19",
+      "key": "E.19",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "Kennedy",
+      "canonicalKey": "E.2",
+      "key": "E.2",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "Adaikala Mary",
+      "canonicalKey": "E.3",
+      "key": "E.3",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "E.4",
+      "key": "E.4",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "1750 E Golf Rd",
+      "canonicalKey": "E.5",
+      "key": "E.5",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "STE, 1138",
+      "canonicalKey": "E.6",
+      "key": "E.6",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "Schaumburg",
+      "canonicalKey": "E.7",
+      "key": "E.7",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "Illinois",
+      "canonicalKey": "E.8",
+      "key": "E.8",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "60173",
+      "canonicalKey": "E.9",
+      "key": "E.9",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "1",
+      "canonicalKey": "F.1",
+      "key": "F.1",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "180000",
+      "canonicalKey": "F.10",
+      "key": "F.10",
+      "message": "Expected one editable control for this question.",
+      "section": "New Application",
+      "status": "verification_failed"
+    },
+    {
+      "answer": "Yearly",
+      "canonicalKey": "F.10A",
+      "key": "F.10a",
+      "message": "No exact radio option matched.",
+      "section": "New Application",
+      "status": "option_not_found"
+    },
+    {
+      "answer": "165000",
+      "canonicalKey": "F.11",
+      "key": "F.11",
+      "message": "The page did not retain the supplied text value.",
+      "section": "New Application",
+      "status": "verification_failed"
+    },
+    {
+      "answer": "Yearly",
+      "canonicalKey": "F.11A",
+      "key": "F.11a",
+      "message": "No exact radio option matched.",
+      "section": "New Application",
+      "status": "option_not_found"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "F.12",
+      "key": "F.12",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "2026",
+      "canonicalKey": "F.13",
+      "key": "F.13",
+      "message": "No exact radio option matched.",
+      "section": "New Application",
+      "status": "option_not_found"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "F.14A",
+      "key": "F.14a",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "F.14C",
+      "key": "F.14c",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "F.14D",
+      "key": "F.14d",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "No",
+      "canonicalKey": "F.2",
+      "key": "F.2",
+      "message": "Radio option selected and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "F.3",
+      "key": "F.3",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "456 Tech Blvd",
+      "canonicalKey": "F.4",
+      "key": "F.4",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "F.5",
+      "key": "F.5",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "San Francisco",
+      "canonicalKey": "F.6",
+      "key": "F.6",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "San Francisco",
+      "canonicalKey": "F.7",
+      "key": "F.7",
+      "message": "No exact searchable dropdown option matched.",
+      "section": "New Application",
+      "status": "option_not_found"
+    },
+    {
+      "answer": "California",
+      "canonicalKey": "F.8",
+      "key": "F.8",
+      "message": "Native dropdown option selected and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "94105",
+      "canonicalKey": "F.9",
+      "key": "F.9",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "Yes_4",
+      "canonicalKey": "G.1",
+      "key": "G.1",
+      "message": "No exact radio option matched.",
+      "section": "New Application",
+      "status": "option_not_found"
+    },
+    {
+      "answer": "/On",
+      "canonicalKey": "H.1",
+      "key": "H.1",
+      "message": "No exact radio option matched.",
+      "section": "New Application",
+      "status": "option_not_found"
+    },
+    {
+      "answer": "/On",
+      "canonicalKey": "H.2",
+      "key": "H.2",
+      "message": "No exact radio option matched.",
+      "section": "New Application",
+      "status": "option_not_found"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "H.3",
+      "key": "H.3",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "H.4",
+      "key": "H.4",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "I.1",
+      "key": "I.1",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "J.1",
+      "key": "J.1",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "J.2",
+      "key": "J.2",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "J.3",
+      "key": "J.3",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "J.4",
+      "key": "J.4",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "03/09/2026",
+      "canonicalKey": "J.6",
+      "key": "J.6",
+      "message": "This page was not recognized as an authenticated ETA-9035/9035E form section.",
+      "section": null,
+      "status": "not_found"
+    },
+    {
+      "answer": "Kennedy",
+      "canonicalKey": "K.1",
+      "key": "K.1",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "Adaikala Mary",
+      "canonicalKey": "K.2",
+      "key": "K.2",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "",
+      "canonicalKey": "K.3",
+      "key": "K.3",
+      "message": "Blank answer skipped.",
+      "section": null,
+      "status": "skipped_blank"
+    },
+    {
+      "answer": "Law Offices of Mary Kennedy, LLC",
+      "canonicalKey": "K.4",
+      "key": "K.4",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    },
+    {
+      "answer": "legal@mkimmigrationlaw.com",
+      "canonicalKey": "K.5",
+      "key": "K.5",
+      "message": "Text value written and verified.",
+      "section": "New Application",
+      "status": "filled"
+    }
+  ],
+  "startedAt": "2026-07-15T16:59:05.709Z",
+  "status": "error",
+  "version": 1
+}

@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "FLAG ETA-9035 Autofill MVP",
+  "version": "0.2.0",
+  "description": "Locally autofill ETA-9035/9035E drafts from pasted JSON and stop before submission.",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": ["https://flag.dol.gov/*"],
+  "action": {
+    "default_title": "FLAG ETA-9035 Autofill",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://flag.dol.gov/*"],
+      "js": ["shared.js", "eta9035-adapter.js", "autofill-engine.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

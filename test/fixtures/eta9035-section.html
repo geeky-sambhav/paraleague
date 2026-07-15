@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head><title>Form ETA-9035 &amp; 9035E</title></head>
+  <body>
+    <aside>
+      <nav aria-label="Application sections">
+        <button aria-current="step">A Employment-Based Nonimmigrant Visa Information</button>
+        <button>B Temporary Need Information</button>
+      </nav>
+    </aside>
+    <main>
+      <h1>Labor Condition Application for Nonimmigrant Workers</h1>
+
+      <fieldset id="visa-question">
+        <legend>A.1. Indicate the type of visa classification supported by this application</legend>
+        <label><input type="radio" name="visa" value="h1b"> H-1B</label>
+        <label><input type="radio" name="visa" value="h1b1-chile"> H-1B1 Chile</label>
+      </fieldset>
+
+      <div class="question">
+        <label for="job-title">B.1. Job title</label>
+        <input id="job-title" name="jobTitle" value="Old title">
+      </div>
+
+      <div class="question" id="soc-question">
+        <label id="soc-label" for="soc">B.2/B.3. SOC (ONET/OES) Code and Occupation Title</label>
+        <input id="soc" role="combobox" aria-labelledby="soc-label" aria-controls="soc-options" aria-expanded="true" autocomplete="off">
+        <ul id="soc-options" role="listbox">
+          <li role="option">15-1251.00 — Computer Programmers</li>
+          <li role="option">15-1252.00 — Software Developers</li>
+          <li role="option">15-1253.00 — Software Quality Assurance Analysts and Testers</li>
+        </ul>
+      </div>
+
+      <fieldset>
+        <legend>B.4. Is this a full-time position?</legend>
+        <label><input type="radio" name="fulltime" value="yes"> Yes</label>
+        <label><input type="radio" name="fulltime" value="no"> No</label>
+      </fieldset>
+
+      <div class="question">
+        <label for="start-date">B.5. Begin date</label>
+        <input id="start-date" type="date">
+      </div>
+
+      <div class="question">
+        <label for="state">C.6. State</label>
+        <select id="state">
+          <option value="">Select</option>
+          <option value="NY">New York</option>
+          <option value="CA">California</option>
+        </select>
+      </div>
+
+      <div class="question">
+        <label for="empty-target">D.1. Optional value</label>
+        <input id="empty-target" value="Keep me">
+      </div>
+
+      <button type="button">Save &amp; Quit</button>
+      <button id="continue" type="button">Continue</button>
+    </main>
+  </body>
+</html>

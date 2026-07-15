@@ -1,0 +1,13 @@
+{
+  "name": "flag-eta9035-autofill",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Unpacked Chrome extension MVP for locally autofilling FLAG ETA-9035/9035E drafts.",
+  "scripts": {
+    "test": "node --test",
+    "test:watch": "node --test --watch"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  }
+}

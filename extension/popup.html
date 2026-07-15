@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FLAG Autofill</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow">ETA-9035 / ETA-9035E</p>
+          <h1>FLAG Autofill</h1>
+        </div>
+        <span id="status-pill" class="pill idle">Idle</span>
+      </header>
+
+      <label for="answers">Paste flat JSON answers</label>
+      <textarea id="answers" spellcheck="false" placeholder='{"A.1":"H-1B","B.1":"Software Engineer"}'></textarea>
+      <p id="message" class="message" role="status">Answers stay in Chrome's in-memory session storage.</p>
+
+      <div class="primary-actions">
+        <button id="run" class="primary">Run from first section</button>
+        <button id="resume" disabled>Resume</button>
+        <button id="stop" class="danger" disabled>Stop</button>
+      </div>
+      <div class="secondary-actions">
+        <button id="inspect">Inspect section</button>
+        <button id="export" disabled>Export report</button>
+        <button id="clear">Clear</button>
+      </div>
+
+      <section aria-labelledby="results-title">
+        <div class="section-heading">
+          <h2 id="results-title">Run results</h2>
+          <span id="summary">No run yet</span>
+        </div>
+        <div id="results" class="results empty">No field results to show.</div>
+      </section>
+
+      <footer>Never clicks Save &amp; Quit, Sign, File, Certify, or Submit.</footer>
+    </main>
+    <script src="shared.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
