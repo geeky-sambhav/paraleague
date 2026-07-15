@@ -5,16 +5,13 @@ An unpacked Chrome Manifest V3 extension that fills an authenticated FLAG ETA-90
 ## Install and test
 
 ```bash
-cd /Users/sambhav/Desktop/paraleague
+cd /paraleague
 npm install
 npm test
 ```
 
 Then open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select:
 
-```text
-/Users/sambhav/Desktop/paraleague/extension
-```
 
 Reload any already-open `https://flag.dol.gov` tab after installing the extension.
 
