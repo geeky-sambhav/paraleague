@@ -9,6 +9,13 @@
 
   const TRUE_VALUES = new Set(["true", "yes", "y", "checked", "1"]);
   const FALSE_VALUES = new Set(["false", "no", "n", "unchecked", "0"]);
+  const ANSWER_ALIASES = {
+    "F.10A": { yearly: "Year" },
+    "F.11A": { yearly: "Year" },
+    "G.1": { yes_4: "Yes" },
+    "H.1": { "/on": "Yes" },
+    "H.2": { "/on": "Yes" }
+  };
 
   function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -78,6 +85,19 @@
     return { status, message };
   }
 
+  function matchingEntry(entry) {
+    const aliases = ANSWER_ALIASES[entry.key];
+    const alias = aliases && aliases[String(entry.text).trim().toLocaleLowerCase("en-US")];
+    return alias ? { ...entry, text: alias, matchedAlias: true } : entry;
+  }
+
+  function isDisabled(control) {
+    if (!control || !control.isConnected) return true;
+    if (control.disabled || control.getAttribute("aria-disabled") === "true") return true;
+    const activation = adapter.associatedLabels(control)[0];
+    return Boolean(activation && activation.getAttribute("aria-disabled") === "true");
+  }
+
   function uniqueControls(controls) {
     return [...new Set(controls)];
   }
@@ -87,8 +107,17 @@
     const bound = uniqueControls((group.bindings || [])
       .filter((binding) => binding.questionIds.some((key) => keys.has(key)))
       .map((binding) => binding.control)
+      .filter((control) => group.controls.includes(control))
       .filter(predicate));
     return bound.length ? bound : group.controls.filter(predicate);
+  }
+
+  function exactEntryChoice(options, entries, combined = false) {
+    const original = exactOptionChoice(options, entries.map((entry) => entry.text), combined);
+    if (original.option || original.count) return original;
+    const aliased = entries.map(matchingEntry);
+    if (!aliased.some((entry, index) => entry.text !== entries[index].text)) return original;
+    return exactOptionChoice(options, aliased.map((entry) => entry.text), combined);
   }
 
   function exactOptionChoice(options, expected, combined = false) {
@@ -105,6 +134,33 @@
     return adapter.optionTexts(option).some((text) => shared.optionMatches(text, expected, combined)) ||
       (!combined && expected.length === 1 && adapter.optionValues(option)
         .some((value) => shared.exactNormalizedMatch(value, expected[0])));
+  }
+
+  function leadingIdentifier(value) {
+    const match = String(value ?? "").trim().match(/^(\d[\d.-]*\d)/);
+    return match ? match[1] : "";
+  }
+
+  function textStartsWithIdentifier(value, identifier) {
+    const actual = leadingIdentifier(value);
+    return Boolean(actual && identifier && shared.exactNormalizedMatch(actual, identifier));
+  }
+
+  function searchableOptionChoice(options, expected, combined, allowLeadingCode) {
+    const exact = exactOptionChoice(options, expected, combined);
+    if (exact.option || exact.count || !allowLeadingCode || expected.length !== 1) return exact;
+    const identifier = leadingIdentifier(expected[0]);
+    if (!identifier || identifier !== String(expected[0]).trim()) return exact;
+    const matches = options.filter((option) => adapter.optionTexts(option)
+      .some((text) => textStartsWithIdentifier(text, identifier)));
+    return { option: matches.length === 1 ? matches[0] : null, count: matches.length };
+  }
+
+  function searchableSignalMatches(value, expected, combined, allowLeadingCode) {
+    if (shared.optionMatches(value, expected, combined)) return true;
+    if (!allowLeadingCode || expected.length !== 1) return false;
+    const identifier = leadingIdentifier(expected[0]);
+    return Boolean(identifier && identifier === String(expected[0]).trim() && textStartsWithIdentifier(value, identifier));
   }
 
   async function waitForStable(predicate, options = {}) {
@@ -124,19 +180,62 @@
   function editableControls(group, entries) {
     return controlsForEntries(group, entries, (control) => {
       const type = (control.getAttribute("type") || "text").toLowerCase();
-      return control.tagName !== "SELECT" && !["radio", "checkbox"].includes(type) && !adapter.looksLikeCombobox(control);
+      return !isDisabled(control) && control.tagName !== "SELECT" &&
+        !["radio", "checkbox"].includes(type) && !adapter.looksLikeCombobox(control);
     });
   }
 
-  async function fillText(group, entries, options = {}) {
+  function primaryEditableControls(group, entries) {
     const controls = editableControls(group, entries);
+    if (controls.length <= 1 || entries.length !== 1) return controls;
+    const from = controls.filter((control) => /(?:^|_)from$/i.test(control.getAttribute("name") || ""));
+    if (from.length === 1) return from;
+    const required = controls.filter((control) => control.required || control.getAttribute("aria-required") === "true");
+    return required.length === 1 ? required : controls;
+  }
+
+  function digitsOnly(value) {
+    return String(value ?? "").replace(/\D/g, "");
+  }
+
+  function equivalentPhone(actual, expected) {
+    const left = digitsOnly(actual);
+    const right = digitsOnly(expected);
+    if (!left || !right) return left === right;
+    return left === right || (left.length === 11 && left.startsWith("1") && left.slice(1) === right) ||
+      (right.length === 11 && right.startsWith("1") && right.slice(1) === left);
+  }
+
+  function numericValue(value) {
+    const normalized = String(value ?? "").replace(/[$,\s]/g, "");
+    if (!/^-?\d+(?:\.\d+)?$/.test(normalized)) return null;
+    const number = Number(normalized);
+    return Number.isFinite(number) ? number : null;
+  }
+
+  function equivalentEditableValue(control, actual, expected) {
+    if ((control.getAttribute("type") || "").toLowerCase() === "tel") return equivalentPhone(actual, expected);
+    const numeric = control.getAttribute("inputmode") === "numeric" || /^\$/.test(control.getAttribute("placeholder") || "");
+    if (numeric) {
+      const left = numericValue(actual);
+      const right = numericValue(expected);
+      if (left !== null && right !== null) return left === right;
+    }
+    return String(actual) === String(expected);
+  }
+
+  async function fillText(group, entries, options = {}) {
+    const controls = primaryEditableControls(group, entries);
+    if (!controls.length && group.controls.some(isDisabled)) {
+      return response("deferred", "The editable control is not ready yet.");
+    }
     if (controls.length !== 1 || entries.length !== 1) {
       return response("verification_failed", "Expected one editable control for this question.");
     }
     const control = controls[0];
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const expected = setEditableValue(control, entries[0].text);
-      if (await waitForStable(() => editableValue(control) === expected, options)) {
+      if (await waitForStable(() => equivalentEditableValue(control, editableValue(control), expected), options)) {
         return response("filled", "Text value written and verified.");
       }
     }
@@ -144,7 +243,9 @@
   }
 
   async function fillNativeSelect(group, entries, options = {}) {
-    const selects = controlsForEntries(group, entries, (control) => control.tagName === "SELECT");
+    const allSelects = controlsForEntries(group, entries, (control) => control.tagName === "SELECT");
+    const selects = allSelects.filter((control) => !isDisabled(control));
+    if (!selects.length && allSelects.length) return response("deferred", "The dropdown is not ready yet.");
     if (selects.length !== 1) return response("verification_failed", "Expected one native dropdown.");
     const select = selects[0];
     const expected = entries.map((entry) => entry.text);
@@ -183,10 +284,15 @@
 
   async function fillRadio(group, entries, options = {}) {
     if (entries.length !== 1) return response("verification_failed", "A radio group accepts one answer.");
-    const radios = controlsForEntries(group, entries, (control) => (control.type || "").toLowerCase() === "radio");
-    const choice = exactOptionChoice(radios, [entries[0].text]);
+    const allRadios = controlsForEntries(group, entries, (control) => (control.type || "").toLowerCase() === "radio");
+    const radios = allRadios.filter((control) => !isDisabled(control));
+    if (!radios.length && allRadios.length) return response("deferred", "The radio choices are not ready yet.");
+    const choice = exactEntryChoice(radios, entries);
     if (!choice.option) {
-      return response("option_not_found", choice.count ? "More than one radio option matched." : "No exact radio option matched.");
+      const available = [...new Set(radios.map(adapter.getControlOptionText).filter(Boolean))];
+      return response("option_not_found", choice.count
+        ? "More than one radio option matched."
+        : `No exact radio option matched.${available.length ? ` Expected one of: ${available.join(", ")}.` : ""}`);
     }
     return await retainChecked(choice.option, true, options)
       ? response("filled", "Radio option selected and verified.")
@@ -200,7 +306,9 @@
 
   async function fillCheckbox(group, entries, options = {}) {
     if (entries.length !== 1) return response("verification_failed", "A flat answer can target one checkbox choice.");
-    const checkboxes = controlsForEntries(group, entries, (control) => (control.type || "").toLowerCase() === "checkbox");
+    const allCheckboxes = controlsForEntries(group, entries, (control) => (control.type || "").toLowerCase() === "checkbox");
+    const checkboxes = allCheckboxes.filter((control) => !isDisabled(control));
+    if (!checkboxes.length && allCheckboxes.length) return response("deferred", "The checkbox choices are not ready yet.");
     const normalized = shared.normalizeOptionText(entries[0].text);
     if (checkboxes.length === 1 && (TRUE_VALUES.has(normalized) || FALSE_VALUES.has(normalized))) {
       const expected = TRUE_VALUES.has(normalized);
@@ -235,11 +343,13 @@
     return values.filter(Boolean);
   }
 
-  async function waitForMatchingOption(doc, control, expected, combined, timeoutMs) {
+  async function waitForMatchingOption(doc, control, expected, combined, timeoutMs, allowLeadingCode) {
     const deadline = Date.now() + timeoutMs;
     let lastChoice = { option: null, count: 0 };
     while (Date.now() < deadline) {
-      lastChoice = exactOptionChoice(adapter.findOpenOptions(doc, control), expected, combined);
+      lastChoice = searchableOptionChoice(
+        adapter.findOpenOptions(doc, control), expected, combined, allowLeadingCode
+      );
       if (lastChoice.option || lastChoice.count > 1) return lastChoice;
       await delay(80);
     }
@@ -247,11 +357,14 @@
   }
 
   async function fillCombobox(group, entries, options = {}) {
-    const controls = controlsForEntries(group, entries, adapter.looksLikeCombobox);
+    const allControls = controlsForEntries(group, entries, adapter.looksLikeCombobox);
+    const controls = allControls.filter((control) => !isDisabled(control));
+    if (!controls.length && allControls.length) return response("deferred", "The searchable dropdown is not ready yet.");
     if (controls.length !== 1) return response("verification_failed", "Expected one searchable dropdown control.");
     const control = controls[0];
     const expected = entries.map((entry) => entry.text);
     const combined = group.questionIds.length > 1 || expected.length > 1;
+    const allowLeadingCode = group.questionIds.length === 1 && group.questionIds[0] === "C.13";
     const query = expected[0];
     let ambiguous = false;
 
@@ -268,14 +381,16 @@
       }
 
       const match = await waitForMatchingOption(
-        control.ownerDocument, control, expected, combined, options.optionTimeoutMs || 3500
+        control.ownerDocument, control, expected, combined, options.optionTimeoutMs || 3500, allowLeadingCode
       );
       if (!match.option) {
         ambiguous = match.count > 1;
         continue;
       }
 
-      const clickedExactOption = optionOrValueMatches(match.option, expected, combined);
+      const clickedExactOption = optionOrValueMatches(match.option, expected, combined) ||
+        (allowLeadingCode && adapter.optionTexts(match.option)
+          .some((text) => textStartsWithIdentifier(text, leadingIdentifier(expected[0]))));
       const datalistOption = match.option.tagName === "OPTION" && match.option.closest("datalist");
       if (datalistOption) {
         setEditableValue(control, match.option.value || match.option.textContent, { blur: true });
@@ -286,10 +401,14 @@
 
       const retained = await waitForStable(() => {
         const signals = comboboxSignals(group, control);
-        const signalVerified = signals.some((signal) => shared.optionMatches(signal, expected, combined) ||
+        const signalVerified = signals.some((signal) => searchableSignalMatches(
+          signal, expected, combined, allowLeadingCode
+        ) ||
           (!combined && expected.length === 1 && shared.exactNormalizedMatch(signal, expected[0])));
         const queryRetained = shared.exactNormalizedMatch(editableValue(control), query);
-        const selectionClosed = control.getAttribute("aria-expanded") === "false" || !match.option.isConnected ||
+        const comboboxRoot = control.closest("[role='combobox']");
+        const selectionClosed = control.getAttribute("aria-expanded") === "false" ||
+          (comboboxRoot && comboboxRoot.getAttribute("aria-expanded") === "false") || !match.option.isConnected ||
           match.option.getAttribute("aria-selected") === "true" || Boolean(datalistOption);
         return signalVerified || (queryRetained && selectionClosed && clickedExactOption);
       }, options);
@@ -330,7 +449,7 @@
   async function fillFieldGroup(group, entries, options) {
     const radios = controlsForEntries(group, entries, (control) => (control.type || "").toLowerCase() === "radio");
     const checkboxes = controlsForEntries(group, entries, (control) => (control.type || "").toLowerCase() === "checkbox");
-    if (entries.length === 1 && exactOptionChoice(radios, [entries[0].text]).option) return fillRadio(group, entries, options);
+    if (entries.length === 1 && exactEntryChoice(radios, entries).option) return fillRadio(group, entries, options);
     if (entries.length === 1 && (exactOptionChoice(checkboxes, [entries[0].text]).option ||
         (checkboxes.length === 1 && (TRUE_VALUES.has(shared.normalizeOptionText(entries[0].text)) ||
           FALSE_VALUES.has(shared.normalizeOptionText(entries[0].text)))))) {
@@ -369,6 +488,7 @@
         } catch (error) {
           outcome = response("verification_failed", `Control interaction failed: ${error.message}`);
         }
+        if (outcome.status === "deferred") continue;
         for (const entry of entries) {
           shared.updateResult(state, entry.key, {
             status: outcome.status,
@@ -385,6 +505,11 @@
   }
 
   function portalErrors(doc) {
+    const listItems = [...new Set(Array.from(doc.querySelectorAll("[role='alert'] li,.form-level-error li"))
+      .filter((element) => !adapter.isHidden(element))
+      .map((element) => adapter.safeText(element.innerText || element.textContent, 300))
+      .filter(Boolean))];
+    if (listItems.length) return listItems.slice(0, 20);
     const selector = "[role='alert'],.usa-error-message,.error-message,.form-level-error,[class*='field-error'],[class*='validation-error']";
     return [...new Set(Array.from(doc.querySelectorAll(selector))
       .filter((element) => !adapter.isHidden(element))
@@ -447,6 +572,22 @@
     return waitForUsablePage(doc, { previousSignature, timeoutMs });
   }
 
+  async function commitPlaceOfEmployment(doc, action, options = {}) {
+    if (!action || isDisabled(action)) return response("deferred", "Add Place of Employment is not enabled.");
+    const before = adapter.placeOfEmploymentEntryCount(doc);
+    clickElement(action);
+    const timeoutMs = options.actionTimeoutMs || 3500;
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      await delay(options.actionPollMs || 80);
+      const after = adapter.placeOfEmploymentEntryCount(doc);
+      if (before !== null && after !== null && after > before) {
+        return { status: "filled", message: "Place of employment row added and verified.", before, after };
+      }
+    }
+    return response("verification_failed", "Add Place of Employment did not create a verified table row.");
+  }
+
   function safeNavigationClick(element) {
     if (!element) throw new Error("Navigation control was not found.");
     if (adapter.isDeniedAction(element)) throw new Error(`Refused to click denied action: ${adapter.actionText(element)}`);
@@ -471,6 +612,7 @@
     portalErrors,
     waitForUsablePage,
     waitForPageChange,
+    commitPlaceOfEmployment,
     safeNavigationClick
   };
 });

@@ -36,7 +36,7 @@
     "file application",
     "certify"
   ]);
-  const NEVER_CLICK_ACTIONS = new Set([...FINAL_ACTIONS, "save and quit"]);
+  const NEVER_CLICK_ACTIONS = new Set([...FINAL_ACTIONS, "save and quit", "clear form"]);
 
   function safeText(value, maxLength = 600) {
     const text = String(value ?? "").replace(/\s+/g, " ").trim();
@@ -106,6 +106,20 @@
     return safeText(parts.join(" "));
   }
 
+  function controlQuestionIds(control) {
+    const direct = [control.getAttribute("title"), control.getAttribute("data-question-id")]
+      .filter(Boolean)
+      .flatMap((value) => shared.extractQuestionIds(value));
+    if (direct.length) return [...new Set(direct)];
+
+    for (const value of [control.getAttribute("id"), control.getAttribute("name")].filter(Boolean)) {
+      const matches = [...String(value).matchAll(/(?:^|_)([a-k])(\d+)([a-z]?)(?=_|$)/gi)]
+        .map((match) => shared.canonicalQuestionId(`${match[1]}.${match[2]}${match[3]}`));
+      if (matches.length) return [...new Set(matches)];
+    }
+    return [];
+  }
+
   function findQuestionContext(control) {
     const directCandidates = [...associatedLabelTexts(control), ariaLabelText(control)].filter(Boolean);
     const fieldset = control.closest && control.closest("fieldset");
@@ -122,6 +136,16 @@
           direct: true
         };
       }
+    }
+
+    const attributeIds = controlQuestionIds(control);
+    if (attributeIds.length) {
+      return {
+        labelText: safeText(directCandidates.join(" ") || attributeIds.join("/")),
+        questionIds: attributeIds,
+        container: control.closest(".usa-form-group,.form-group,.question,fieldset") || control.parentElement,
+        direct: true
+      };
     }
 
     let current = control.parentElement;
@@ -335,6 +359,25 @@
     return matches.length === 1 ? matches[0] : null;
   }
 
+  function findAddPlaceOfEmployment(doc) {
+    const matches = actionCandidates(applicationRoot(doc))
+      .filter((element) => shared.normalizeOptionText(actionText(element)) === "add place of employment");
+    return matches.length === 1 ? matches[0] : null;
+  }
+
+  function placeOfEmploymentEntryCount(doc) {
+    const root = applicationRoot(doc);
+    for (const heading of root.querySelectorAll("h1,h2,h3,h4,[role='heading']")) {
+      if (isHidden(heading)) continue;
+      const match = elementText(heading).match(/\b(\d+)\s+Entr(?:y|ies)\s+for\s+Place\s+of\s+Employment\b/i);
+      if (match) return Number(match[1]);
+    }
+    const table = Array.from(root.querySelectorAll("table")).find((candidate) =>
+      /Place of Employment|Total Worker|Wage Rate/i.test(elementText(candidate)));
+    if (!table) return null;
+    return Array.from(table.querySelectorAll("tbody tr")).filter((row) => !isHidden(row)).length;
+  }
+
   function isDeniedAction(element) {
     return NEVER_CLICK_ACTIONS.has(shared.normalizeOptionText(actionText(element)));
   }
@@ -474,7 +517,8 @@
   return {
     safeText, elementText, isHidden, associatedLabels, discoverFieldGroups, getControlOptionText,
     optionTexts, optionValues, looksLikeCombobox, findOpenOptions, hasEtaMarker, isEta9035Document,
-    isFirstSection, findFirstSectionNavigation, actionText, findContinue, isDeniedAction, isFinalPage,
+    isFirstSection, findFirstSectionNavigation, actionText, findContinue, findAddPlaceOfEmployment,
+    placeOfEmploymentEntryCount, isDeniedAction, isFinalPage,
     detectSection, classifyDocument, pageSignature, inspectDocument
   };
 });

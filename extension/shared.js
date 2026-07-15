@@ -64,7 +64,7 @@
   function optionMatches(optionText, expectedTexts, combined) {
     const expected = expectedTexts.map(normalizeOptionText).filter(Boolean);
     if (!expected.length) return false;
-    if (!combined && expected.length === 1) return normalizeOptionText(optionText) === expected[0];
+    if (expected.length === 1) return normalizeOptionText(optionText) === expected[0];
     return expected.every((answer) => containsNormalized(optionText, answer));
   }
 
@@ -85,12 +85,14 @@
     const results = {};
     for (const [originalKey, rawValue] of Object.entries(parsed)) {
       const key = canonicalQuestionId(originalKey);
+      const questionIds = [key];
       if (!/^[A-Z]\.\d+[A-Z]?$/.test(key)) {
         throw new Error("Invalid question key \"" + originalKey + "\". Expected a key such as A.1 or B.7a.");
       }
       const base = {
         key: originalKey.trim() || originalKey,
         canonicalKey: key,
+        questionIds,
         answer: rawValue,
         section: null,
         message: "Waiting to find this question."
@@ -109,9 +111,10 @@
         continue;
       }
 
-      answers[key] = { key, originalKey: base.key, raw: rawValue, text: String(rawValue) };
+      answers[key] = { key, questionIds, originalKey: base.key, raw: rawValue, text: String(rawValue) };
       results[key] = { ...base, status: "pending" };
     }
+
     return { answers, results };
   }
 
@@ -128,6 +131,7 @@
       currentSection: null,
       navigationAttempts: 0,
       processedSignatures: {},
+      processedSectionActions: {},
       answers,
       results
     };

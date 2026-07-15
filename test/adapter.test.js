@@ -94,3 +94,39 @@ test("classifies a control-free review page as final before form recognition", (
   assert.equal(adapter.isEta9035Document(document), false);
   assert.equal(adapter.classifyDocument(document).kind, "final");
 });
+
+test("binds live worker-count and wage-range names to their exact questions", () => {
+  const document = documentFor(`<!doctype html><title>Form ETA-9035E</title><main>
+    <h1>Employment and Wage Information</h1>
+    <div><label for="b7_total_positions">B.7. Total positions</label><input id="b7_total_positions" name="b7_total_positions"></div>
+    <div><label>B.7a-f. Basis</label>
+      <label>a. New employment<input id="b7a_new_employment" name="b7a_new_employment"></label>
+      <label>b. Continuation<input id="b7b_continuation" name="b7b_continuation"></label>
+      <label>c. Change<input id="b7c_change_approved" name="b7c_change_approved"></label>
+      <label>d. Concurrent<input id="b7d_new_concurrent" name="b7d_new_concurrent"></label>
+      <label>e. Employer change<input id="b7e_change_employer" name="b7e_change_employer"></label>
+      <label>f. Amended<input id="b7f_amended_petition" name="b7f_amended_petition"></label>
+    </div>
+    <div><label>F.10. Wage Rate</label><input name="_section_f_f10_nonimmigrant_wage_from"><input name="_section_f_f10_nonimmigrant_wage_to"></div>
+  </main>`);
+
+  const groups = adapter.discoverFieldGroups(document);
+  for (const key of ["B.7", "B.7A", "B.7B", "B.7C", "B.7D", "B.7E", "B.7F"]) {
+    assert.equal(groups.find((group) => group.key === key).controls.length, 1, key);
+  }
+  assert.equal(groups.find((group) => group.key === "F.10").controls.length, 2);
+});
+
+test("finds the Section F row action while denying destructive Clear Form", () => {
+  const document = documentFor(`<!doctype html><title>Form ETA-9035E</title><main><form>
+    <h1>Employment and Wage Information</h1>
+    <label for="f1">F.1. Workers</label><input id="f1">
+    <button id="add" type="button">Add Place of Employment</button>
+    <button id="clear" type="button">Clear Form</button>
+    <h3>0 Entries for Place of Employment</h3>
+  </form></main>`);
+
+  assert.equal(adapter.findAddPlaceOfEmployment(document).id, "add");
+  assert.equal(adapter.placeOfEmploymentEntryCount(document), 0);
+  assert.equal(adapter.isDeniedAction(document.getElementById("clear")), true);
+});

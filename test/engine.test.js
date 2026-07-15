@@ -301,3 +301,168 @@ test("allows navigation time before treating an existing validation message as a
   assert.equal(result.kind, "final");
   assert.equal(result.changed, true);
 });
+
+test("fills the live-shaped B.2/B.3 React autosuggest from separate answer keys", async () => {
+  const html = `<!doctype html><title>Form ETA-9035E</title><main>
+    <h1>Temporary Need Information</h1><div class="usa-form-group">
+      <label for="b2_soc_code">B.2/B.3. SOC (ONET/OES) Code and Occupation Title</label>
+      <div id="soc-root" role="combobox" aria-owns="react-autowhatever-1" aria-expanded="false">
+        <input id="soc" aria-autocomplete="list" aria-controls="react-autowhatever-1">
+        <div id="react-autowhatever-1" role="listbox"></div>
+      </div>
+    </div>
+  </main>`;
+  const dom = new JSDOM(html, { url: "https://flag.dol.gov/case/test/edit", pretendToBeVisual: true });
+  const { document } = dom.window;
+  const input = document.getElementById("soc");
+  const root = document.getElementById("soc-root");
+  const list = document.getElementById("react-autowhatever-1");
+  input.addEventListener("input", () => {
+    root.setAttribute("aria-expanded", "true");
+    list.innerHTML = `<ul><li role="option">15-1251.00 —— Computer Programmers</li>
+      <li role="option">15-1252.00 —— Software Developers</li></ul>`;
+    for (const option of list.querySelectorAll("[role='option']")) {
+      option.addEventListener("click", () => {
+        input.value = option.textContent.trim();
+        option.setAttribute("aria-selected", "true");
+        root.setAttribute("aria-expanded", "false");
+      });
+    }
+  });
+  const state = shared.createRunState({ "B.2": "15-1252.00", "B.3": "Software Developers" });
+
+  await engine.fillVisibleSection(document, state, {
+    optionTimeoutMs: 60, settleMs: 1, verifyIntervalMs: 2, verifyTimeoutMs: 20, verifyPolls: 2,
+    betweenFieldsMs: 1, conditionalWaitMs: 1
+  });
+
+  assert.equal(input.value, "15-1252.00 —— Software Developers");
+  assert.equal(state.results["B.2"].status, "filled");
+  assert.equal(state.results["B.3"].status, "filled");
+});
+
+test("selects a unique live NAICS suggestion by its exact leading code", async () => {
+  const html = `<!doctype html><title>Form ETA-9035E</title><main>
+    <h1>Employer Information</h1><div><label>C.13. NAICS Code</label>
+      <div role="combobox" aria-expanded="false"><input id="naics" aria-autocomplete="list" aria-controls="naics-list"><div id="naics-list" role="listbox"></div></div>
+    </div>
+  </main>`;
+  const dom = new JSDOM(html, { url: "https://flag.dol.gov/case/test/edit", pretendToBeVisual: true });
+  const { document } = dom.window;
+  const input = document.getElementById("naics");
+  const list = document.getElementById("naics-list");
+  input.addEventListener("input", () => {
+    list.innerHTML = '<div role="option">541511 — Custom Computer Programming Services</div>';
+    list.firstElementChild.addEventListener("click", () => {
+      input.value = list.firstElementChild.textContent;
+      list.firstElementChild.setAttribute("aria-selected", "true");
+    });
+  });
+  const state = shared.createRunState({ "C.13": "541511" });
+
+  await engine.fillVisibleSection(document, state, {
+    optionTimeoutMs: 60, settleMs: 1, verifyIntervalMs: 2, verifyTimeoutMs: 20, verifyPolls: 2,
+    betweenFieldsMs: 1, conditionalWaitMs: 1
+  });
+
+  assert.equal(input.value, "541511 — Custom Computer Programming Services");
+  assert.equal(state.results["C.13"].status, "filled");
+});
+
+test("verifies FLAG-formatted telephone and currency values semantically", async () => {
+  const html = `<!doctype html><title>Form ETA-9035E</title><main><h1>Employer Information</h1>
+    <div><label for="phone">C.10. Telephone Number</label><input id="phone" type="tel"></div>
+    <div><label for="wage">F.11. Prevailing Wage</label><input id="wage" name="_section_f_f11_prevailing_wage" inputmode="numeric" placeholder="$nnnnnnnnnn.nn"></div>
+  </main>`;
+  const dom = new JSDOM(html, { url: "https://flag.dol.gov/case/test/edit", pretendToBeVisual: true });
+  const { document } = dom.window;
+  document.getElementById("phone").addEventListener("input", (event) => { event.target.value = "(555) 123-4567"; });
+  document.getElementById("wage").addEventListener("input", (event) => { event.target.value = "$165,000.00"; });
+  const state = shared.createRunState({ "C.10": "5551234567", "F.11": "165000" });
+
+  await engine.fillVisibleSection(document, state, {
+    verifyIntervalMs: 2, verifyTimeoutMs: 20, verifyPolls: 2, betweenFieldsMs: 1, conditionalWaitMs: 1
+  });
+
+  assert.equal(state.results["C.10"].status, "filled");
+  assert.equal(state.results["F.11"].status, "filled");
+});
+
+test("normalizes portal aliases and waits for enabled dependent choices", async () => {
+  const html = `<!doctype html><title>Form ETA-9035E</title><main><h1>Employment and Wage Information</h1>
+    <div><label>F.10. Wage Rate</label><input id="amount" name="_section_f_f10_nonimmigrant_wage_from"></div>
+    <fieldset><legend>F.10a. Per</legend>
+      <label><input type="radio" name="period" value="Hour" disabled>Hour</label>
+      <label><input id="year" type="radio" name="period" value="Year" disabled>Year</label>
+    </fieldset>
+    <fieldset><legend>G.1. Agreement</legend><label><input id="agree" type="radio" name="agreement" value="YES">Yes</label><label><input type="radio" name="agreement" value="NO">No</label></fieldset>
+    <fieldset><legend>H.1. Dependent</legend><label><input id="dependent" type="radio" name="dependent" value="YES">Yes</label><label><input type="radio" name="dependent" value="NO">No</label></fieldset>
+  </main>`;
+  const dom = new JSDOM(html, { url: "https://flag.dol.gov/case/test/edit", pretendToBeVisual: true });
+  const { document } = dom.window;
+  document.getElementById("amount").addEventListener("input", () => {
+    for (const radio of document.querySelectorAll("input[name='period']")) radio.disabled = false;
+  });
+  const state = shared.createRunState({ "F.10": "180000", "F.10a": "Yearly", "G.1": "Yes_4", "H.1": "/On" });
+
+  await engine.fillVisibleSection(document, state, {
+    verifyIntervalMs: 2, verifyTimeoutMs: 20, verifyPolls: 2, betweenFieldsMs: 1, conditionalWaitMs: 1
+  });
+
+  assert.equal(document.getElementById("year").checked, true);
+  assert.equal(document.getElementById("agree").checked, true);
+  assert.equal(document.getElementById("dependent").checked, true);
+  for (const key of ["F.10", "F.10A", "G.1", "H.1"]) assert.equal(state.results[key].status, "filled", key);
+});
+
+test("reports live radio choices for invalid source values", async () => {
+  const html = `<!doctype html><title>Form ETA-9035E</title><main><h1>Attorney Information</h1>
+    <fieldset><legend>E.1. Representation</legend>
+      <label><input type="radio" name="represented" value="Attorney">Attorney</label>
+      <label><input type="radio" name="represented" value="Agent">Agent</label>
+      <label><input type="radio" name="represented" value="None">None</label>
+    </fieldset>
+  </main>`;
+  const dom = new JSDOM(html, { url: "https://flag.dol.gov/case/test/edit", pretendToBeVisual: true });
+  const state = shared.createRunState({ "E.1": "Yes" });
+
+  await engine.fillVisibleSection(dom.window.document, state, { betweenFieldsMs: 1, conditionalWaitMs: 1 });
+
+  assert.equal(state.results["E.1"].status, "option_not_found");
+  assert.match(state.results["E.1"].message, /Attorney, Agent, None/);
+});
+
+test("adds and verifies exactly one place-of-employment row", async () => {
+  const html = `<!doctype html><title>Form ETA-9035E</title><main><form><h1>Employment and Wage Information</h1>
+    <button id="add" type="button">Add Place of Employment</button><button id="clear" type="button">Clear Form</button>
+    <h3 id="count">0 Entries for Place of Employment</h3><table><tbody></tbody></table>
+  </form></main>`;
+  const dom = new JSDOM(html, { url: "https://flag.dol.gov/case/test/edit", pretendToBeVisual: true });
+  const { document } = dom.window;
+  let clicks = 0;
+  document.getElementById("add").addEventListener("click", () => {
+    clicks += 1;
+    document.getElementById("count").textContent = "1 Entry for Place of Employment";
+    document.querySelector("tbody").innerHTML = "<tr><td>1</td></tr>";
+  });
+
+  const outcome = await engine.commitPlaceOfEmployment(document, document.getElementById("add"), {
+    actionTimeoutMs: 30, actionPollMs: 1
+  });
+
+  assert.equal(outcome.status, "filled");
+  assert.equal(outcome.before, 0);
+  assert.equal(outcome.after, 1);
+  assert.equal(clicks, 1);
+  assert.throws(() => engine.safeNavigationClick(document.getElementById("clear")), /Refused/);
+});
+
+test("extracts individual field-level portal errors", () => {
+  const html = `<!doctype html><main><div class="form-level-error" role="alert"><ul>
+    <li>Field D.1: This field is required.</li><li>Field D.2: This field is required.</li>
+  </ul></div></main>`;
+  const dom = new JSDOM(html, { pretendToBeVisual: true });
+  assert.deepEqual(engine.portalErrors(dom.window.document), [
+    "Field D.1: This field is required.", "Field D.2: This field is required."
+  ]);
+});

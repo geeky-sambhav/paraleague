@@ -52,7 +52,9 @@ The inspector exports question labels, safe control attributes, visible option l
 - Arrays and nested objects are reported as `unsupported_value`.
 - Existing nonblank portal values are overwritten.
 - Radio/select/dropdown options first use exact normalized visible-label matching. If no label matches, one unique exact underlying HTML value is accepted (for example `Yes_4` or `/On`); fuzzy matching is never used.
-- Combined controls such as `B.2/B.3` require one unique option matching every supplied component.
+- Combined controls such as `B.2/B.3` are filled by combining their separate answer entries internally; for example, `B.2` supplies the SOC code and `B.3` supplies the occupation title.
+- Known PDF-to-FLAG choice tokens are normalized only for their specific questions (`Yearly` to `Year` for F.10a/F.11a, `Yes_4` to `Yes` for G.1, and `/On` to `Yes` for H.1/H.2).
+- Section F commits one completed worksite with **Add Place of Employment** before continuing and verifies that the table row was created.
 - React-controlled fields are rechecked after the portal settles and retried once if the first value is rolled back.
 - Repeated rows, file uploads, nested answers, and forms other than ETA-9035/9035E are outside this MVP.
 

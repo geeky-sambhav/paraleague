@@ -82,14 +82,16 @@
         if (!portalMessagesByQuestion.has(key)) portalMessagesByQuestion.set(key, error);
       }
     }
-    for (const [key, error] of portalMessagesByQuestion) {
-      const result = run.results[key];
-      if (!result || ["skipped_blank", "unsupported_value"].includes(result.status)) continue;
-      shared.updateResult(run, key, {
-        status: "blocked_by_portal",
-        section: section.title,
-        message: error
-      });
+    for (const [questionId, error] of portalMessagesByQuestion) {
+      for (const [resultKey, result] of Object.entries(run.results)) {
+        const targets = result.questionIds || [result.canonicalKey];
+        if (!targets.includes(questionId) || !["pending", "skipped_blank"].includes(result.status)) continue;
+        shared.updateResult(run, resultKey, {
+          status: "blocked_by_portal",
+          section: section.title,
+          message: error
+        });
+      }
     }
 
     for (const [key, result] of Object.entries(run.results)) {
@@ -114,6 +116,35 @@
       return;
     }
     await complete(run, "Reached the final review/sign-and-submit page and stopped without submitting.");
+  }
+
+  async function commitSectionActions(run, signature) {
+    const section = adapter.detectSection(document);
+    if (section.code !== "F") return true;
+    const action = adapter.findAddPlaceOfEmployment(document);
+    if (!action) return true;
+
+    run.processedSectionActions = run.processedSectionActions || {};
+    const actionKey = `${signature}|add-place-of-employment`;
+    if (run.processedSectionActions[actionKey]) return true;
+
+    run.status = "running";
+    run.message = "Adding and verifying the place of employment row.";
+    await saveRun(run);
+    updateBadge(run);
+    const outcome = await engine.commitPlaceOfEmployment(document, action);
+    if (outcome.status !== "filled") {
+      await block(run, outcome.message, engine.portalErrors(document));
+      return false;
+    }
+    run.processedSectionActions[actionKey] = {
+      completedAt: new Date().toISOString(),
+      before: outcome.before,
+      after: outcome.after
+    };
+    run.message = outcome.message;
+    await saveRun(run);
+    return true;
   }
 
   async function seekFirstSection(run) {
@@ -178,6 +209,8 @@
 
     await engine.fillVisibleSection(document, run);
     await saveRun(run);
+
+    if (!await commitSectionActions(run, signature)) return false;
 
     if (adapter.isFinalPage(document)) {
       await completeFromFinalPage(run);
